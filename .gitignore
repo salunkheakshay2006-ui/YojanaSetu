@@ -4,14 +4,41 @@ frontend/.env
 *.env
 *.env.*
 !.env.example
+credentials.json
+service-account.json
+*.key
+*.pem
 
-# Python cache & build
+# Python cache & virtual environments
 __pycache__/
 *.py[cod]
 *.class
-venv/
 .venv/
+venv/
 env/
 
-# Scratch & testing artifacts
+# Node & frontend dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+dist-ssr/
+
+# IDE & OS files
+.vscode/
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Generated files & logs
+uploads/
+temp/
+logs/
 scratch/
