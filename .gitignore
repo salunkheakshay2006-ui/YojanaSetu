@@ -1,0 +1,17 @@
+# Environment variables & secrets
+backend/.env
+frontend/.env
+*.env
+*.env.*
+!.env.example
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*.class
+venv/
+.venv/
+env/
+
+# Scratch & testing artifacts
+scratch/
