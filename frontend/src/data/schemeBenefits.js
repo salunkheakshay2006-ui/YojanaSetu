@@ -1,0 +1,22 @@
+export const SCHEME_BENEFITS = {
+  "Atal Pension Yojana": "Pension according to selected contribution and scheme terms",
+  "Ayushman Bharat - PM-JAY": "Health cover up to ₹5,00,000 per family per year for covered hospitalization",
+  "Craftsman Training Scheme - Maharashtra": "Training-related assistance; verify current amount and conditions",
+  "Educational Assistance to the 10th to 12th Students": "₹10,000 educational assistance under the listed conditions",
+  "Homes For Intellectually Impaired Persons": "Residential care/support under scheme rules",
+  "National Family Benefit Scheme": "One-time assistance of ₹20,000 to the eligible surviving household member",
+  "National Means-Cum-Merit Scholarship Scheme": "₹12,000 per year under current scheme conditions",
+  "PM Vishwakarma": "Training, toolkit incentive, credit support, digital transaction incentive, and marketing support under scheme rules",
+  "PM-DAKSH": "Free skill training and related support under programme rules",
+  "Pradhan Mantri Awas Yojana - Urban": "Housing support or interest subsidy under the applicable PMAY-Urban component",
+  "Pradhan Mantri Fasal Bima Yojana": "Insurance protection against crop loss from notified natural events, pests, and diseases",
+  "Pradhan Mantri Garib Kalyan Anna Yojana": "Food-grain support under applicable NFSA provisions",
+  "Pradhan Mantri Jeevan Jyoti Bima Yojana": "Life insurance under current scheme terms",
+  "Pradhan Mantri Kaushal Vikas Yojana - Short Term Training": "Skill training and assessment/certification support under programme rules",
+  "Pradhan Mantri Kisan Samman Nidhi": "₹6,000 per year per eligible family in three ₹2,000 instalments",
+  "Pradhan Mantri Matru Vandana Yojana": "Maternity benefit under current instalment rules",
+  "Pradhan Mantri Mudra Yojana": "Business loans under Shishu, Kishor, Tarun, and applicable current categories",
+  "Pradhan Mantri Ujjwala Yojana 2.0": "LPG connection support under current PMUY conditions",
+  "Prime Minister’s Internship Scheme": "Internship opportunity in participating companies; current stipend and insurance conditions apply",
+  "Prime Minister's Scholarship Scheme": "Scholarship for approved professional/technical courses; amount and continuation depend on current guidelines"
+};
