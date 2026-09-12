@@ -7,8 +7,7 @@ Enforces at most ONE preferences record per authenticated user via unique user_i
 
 from datetime import datetime, timezone
 from typing import List
-from sqlalchemy import DateTime, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import DateTime, JSON, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -25,7 +24,7 @@ class CitizenPreferencesTable(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     user_id: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
-    goals: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    goals: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

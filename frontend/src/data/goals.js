@@ -16,11 +16,16 @@ export const SUPPORT_GOALS = [
     title: "Education",
     icon: "🎓",
     description: "Find scholarships and education support",
-    categories: ["Education"],
+    categories: ["Education", "Education and Disability"],
     schemes: [
       "Prime Minister's Scholarship Scheme",
       "Educational Assistance to the 10th to 12th Students",
       "National Means-Cum-Merit Scholarship Scheme",
+      "National Overseas Scholarship For Scheduled Caste Candidates",
+      "Post Matric Scholarship Students With Disabilities",
+      "Post Matric Scholarship Scheme For The Students Belonging To Scheduled Tribe For Studies In India",
+      "Post-Matric Scholarship To VJNT Students - Maharashtra",
+      "National Overseas Scholarship For Students With Disabilities",
     ],
   },
   {
@@ -28,13 +33,15 @@ export const SUPPORT_GOALS = [
     title: "Employment",
     icon: "💼",
     description: "Find employment and livelihood support",
-    categories: ["Employment and Internship", "Skill Development"],
+    categories: ["Employment and Internship", "Skill Development", "Employment"],
     schemes: [
       "Prime Minister’s Internship Scheme",
       "Prime Minister's Internship Scheme",
       "Craftsman Training Scheme - Maharashtra",
       "Pradhan Mantri Kaushal Vikas Yojana - Short Term Training",
       "PM-DAKSH",
+      "Mahatma Gandhi National Rural Employment Guarantee Act",
+      "Women Scientist Scheme-C",
     ],
   },
   {
@@ -42,11 +49,13 @@ export const SUPPORT_GOALS = [
     title: "Healthcare",
     icon: "🏥",
     description: "Find health coverage and maternity support",
-    categories: ["Health and Wellness", "Maternity and Nutrition", "Insurance"],
+    categories: ["Health and Wellness", "Maternity and Nutrition", "Insurance", "Insurance and Social Security"],
     schemes: [
       "Ayushman Bharat - PM-JAY",
       "Pradhan Mantri Matru Vandana Yojana",
       "Pradhan Mantri Jeevan Jyoti Bima Yojana",
+      "Pradhan Mantri Suraksha Bima Yojana",
+      "Aam Aadmi Bima Yojana (Maharashtra)",
     ],
   },
   {
@@ -54,12 +63,14 @@ export const SUPPORT_GOALS = [
     title: "Skill Development",
     icon: "🛠️",
     description: "Find vocational and practical skill training",
-    categories: ["Skill Development", "Skill Development and Social Empowerment"],
+    categories: ["Skill Development", "Skill Development and Social Empowerment", "Science and Technology"],
     schemes: [
       "Craftsman Training Scheme - Maharashtra",
       "Pradhan Mantri Kaushal Vikas Yojana - Short Term Training",
       "PM-DAKSH",
       "PM Vishwakarma",
+      "Skill Loan Scheme",
+      "Women Scientist Scheme-C",
     ],
   },
   {
@@ -70,6 +81,7 @@ export const SUPPORT_GOALS = [
     categories: ["Housing", "Energy and Household Welfare"],
     schemes: [
       "Pradhan Mantri Awas Yojana - Urban",
+      "Pradhan Mantri Awaas Yojana - Gramin",
       "Pradhan Mantri Ujjwala Yojana 2.0",
     ],
   },
@@ -78,10 +90,12 @@ export const SUPPORT_GOALS = [
     title: "Agriculture",
     icon: "🌾",
     description: "Find farming and agricultural support",
-    categories: ["Agriculture and Crop Insurance", "Agriculture and Income Support"],
+    categories: ["Agriculture and Crop Insurance", "Agriculture and Income Support", "Agriculture", "Agriculture and Women Empowerment"],
     schemes: [
       "Pradhan Mantri Kisan Samman Nidhi",
       "Pradhan Mantri Fasal Bima Yojana",
+      "Pradhan Mantri Krishi Sinchayee Yojana: Per Drop More Crop",
+      "Mahila Kisan Yojana (Maharashtra)",
     ],
   },
   {
@@ -89,10 +103,13 @@ export const SUPPORT_GOALS = [
     title: "Business",
     icon: "📈",
     description: "Find microenterprise credit and artisan tools",
-    categories: ["Microenterprise Credit", "Artisans and Craftspeople"],
+    categories: ["Microenterprise Credit", "Artisans and Craftspeople", "Business and Entrepreneurship", "Microenterprise Credit and Women Empowerment"],
     schemes: [
       "Pradhan Mantri Mudra Yojana",
       "PM Vishwakarma",
+      "Stand-Up India",
+      "Mahila Samridhi Yojana (Maharashtra)",
+      "National Pension Scheme For Traders And Self Employed Persons",
     ],
   },
   {
@@ -110,10 +127,15 @@ export const SUPPORT_GOALS = [
     title: "Pension",
     icon: "🛡️",
     description: "Find pension schemes and social security",
-    categories: ["Pension and Social Security", "Social Security"],
+    categories: ["Pension and Social Security", "Social Security", "Banking and Financial Inclusion"],
     schemes: [
       "Atal Pension Yojana",
       "National Family Benefit Scheme",
+      "Indira Gandhi National Old Age Pension Scheme",
+      "Indira Gandhi National Widow Pension Scheme",
+      "Indira Gandhi National Disability Pension Scheme",
+      "National Pension Scheme For Traders And Self Employed Persons",
+      "Pradhan Mantri Jan Dhan Yojana",
     ],
   },
   {
@@ -121,9 +143,12 @@ export const SUPPORT_GOALS = [
     title: "Disability Support",
     icon: "♿",
     description: "Find support programs for persons with disabilities",
-    categories: ["Disability and Social Welfare"],
+    categories: ["Disability and Social Welfare", "Education and Disability"],
     schemes: [
       "Homes For Intellectually Impaired Persons",
+      "Indira Gandhi National Disability Pension Scheme",
+      "Post Matric Scholarship Students With Disabilities",
+      "National Overseas Scholarship For Students With Disabilities",
     ],
   },
 ];

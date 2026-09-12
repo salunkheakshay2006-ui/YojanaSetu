@@ -48,44 +48,42 @@ def get_user_preferences(user_id: str) -> List[str]:
     Return the saved list of goals for the authenticated user.
     Returns an empty list if no preferences record exists yet.
     """
-    sql = text("SELECT goals FROM citizen_preferences WHERE user_id = :user_id")
+    from models.citizen_preferences_orm import CitizenPreferencesTable
 
     with SessionLocal() as db:
-        row = db.execute(sql, {"user_id": user_id}).mappings().first()
+        record = db.query(CitizenPreferencesTable).filter_by(user_id=user_id).first()
+        if record and record.goals is not None:
+            goals_val = record.goals
+            if isinstance(goals_val, str):
+                try:
+                    return json.loads(goals_val)
+                except Exception:
+                    return []
+            return list(goals_val)
 
-    if row is None or row.get("goals") is None:
-        return []
-
-    goals_val = row["goals"]
-    if isinstance(goals_val, str):
-        try:
-            return json.loads(goals_val)
-        except Exception:
-            return []
-    return list(goals_val)
+    return []
 
 
 def save_user_preferences(user_id: str, goals: List[str]) -> List[str]:
     """
     Create or update citizen preferences for user_id.
-    Enforces at most one record per user via ON CONFLICT (user_id).
+    Enforces at most one record per user via unique constraint on user_id.
     """
-    record_id = str(uuid.uuid4())
-    goals_json = json.dumps(goals)
-
-    sql = text("""
-        INSERT INTO citizen_preferences (id, user_id, goals, created_at, updated_at)
-        VALUES (:id, :user_id, CAST(:goals AS JSONB), NOW(), NOW())
-        ON CONFLICT (user_id)
-        DO UPDATE SET goals = EXCLUDED.goals, updated_at = NOW()
-    """)
+    from datetime import datetime, timezone
+    from models.citizen_preferences_orm import CitizenPreferencesTable
 
     with SessionLocal() as db:
-        db.execute(sql, {
-            "id": record_id,
-            "user_id": user_id,
-            "goals": goals_json,
-        })
+        record = db.query(CitizenPreferencesTable).filter_by(user_id=user_id).first()
+        if record:
+            record.goals = goals
+            record.updated_at = datetime.now(timezone.utc)
+        else:
+            record = CitizenPreferencesTable(
+                id=str(uuid.uuid4()),
+                user_id=user_id,
+                goals=goals,
+            )
+            db.add(record)
         db.commit()
 
     return goals

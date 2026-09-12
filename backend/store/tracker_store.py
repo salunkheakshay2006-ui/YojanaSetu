@@ -77,32 +77,29 @@ def set_tracker_status(user_id: str, scheme_id: str, status: str) -> Optional[di
     canonical_id = scheme.id
     record_id = str(uuid.uuid4())
 
-    # Ensure the scheme is in saved_schemes so tracker never tracks unsaved schemes
-    ensure_saved_sql = text("""
-        INSERT INTO saved_schemes (id, user_id, scheme_id, created_at)
-        VALUES (:id, :user_id, :scheme_id, NOW())
-        ON CONFLICT (user_id, scheme_id) DO NOTHING
-    """)
-
-    upsert_tracker_sql = text("""
-        INSERT INTO application_tracker (id, user_id, scheme_id, status, created_at, updated_at)
-        VALUES (:id, :user_id, :scheme_id, :status, NOW(), NOW())
-        ON CONFLICT (user_id, scheme_id)
-        DO UPDATE SET status = EXCLUDED.status, updated_at = NOW()
-    """)
+    from datetime import datetime, timezone
+    from models.saved_scheme_orm import SavedSchemeTable
+    from models.application_tracker_orm import ApplicationTrackerTable
 
     with SessionLocal() as db:
-        db.execute(ensure_saved_sql, {
-            "id": str(uuid.uuid4()),
-            "user_id": user_id,
-            "scheme_id": canonical_id,
-        })
-        db.execute(upsert_tracker_sql, {
-            "id": record_id,
-            "user_id": user_id,
-            "scheme_id": canonical_id,
-            "status": status,
-        })
+        # Ensure the scheme is in saved_schemes so tracker never tracks unsaved schemes
+        saved = db.query(SavedSchemeTable).filter_by(user_id=user_id, scheme_id=canonical_id).first()
+        if not saved:
+            db.add(SavedSchemeTable(id=str(uuid.uuid4()), user_id=user_id, scheme_id=canonical_id))
+        
+        # Upsert application tracker entry
+        tracker = db.query(ApplicationTrackerTable).filter_by(user_id=user_id, scheme_id=canonical_id).first()
+        if tracker:
+            tracker.status = status
+            tracker.updated_at = datetime.now(timezone.utc)
+        else:
+            tracker = ApplicationTrackerTable(
+                id=record_id,
+                user_id=user_id,
+                scheme_id=canonical_id,
+                status=status,
+            )
+            db.add(tracker)
         db.commit()
 
     slug = scheme.source_url.rstrip("/").split("/")[-1].lower() if scheme.source_url else canonical_id
@@ -125,12 +122,12 @@ def delete_tracker_entry(user_id: str, scheme_id: str) -> bool:
     if scheme and scheme.id not in target_ids:
         target_ids.append(scheme.id)
 
-    sql = text("""
-        DELETE FROM application_tracker
-        WHERE user_id = :user_id AND scheme_id = ANY(:target_ids)
-    """)
+    from models.application_tracker_orm import ApplicationTrackerTable
 
     with SessionLocal() as db:
-        res = db.execute(sql, {"user_id": user_id, "target_ids": target_ids})
+        deleted = db.query(ApplicationTrackerTable).filter(
+            ApplicationTrackerTable.user_id == user_id,
+            ApplicationTrackerTable.scheme_id.in_(target_ids)
+        ).delete(synchronize_session=False)
         db.commit()
-        return res.rowcount > 0
+        return deleted > 0

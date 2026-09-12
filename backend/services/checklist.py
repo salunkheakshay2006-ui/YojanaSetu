@@ -14,7 +14,7 @@ Rules:
   - No document requirements or citizen attributes are invented.
 """
 
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 from models.citizen import CitizenProfile
 
 
@@ -160,6 +160,22 @@ def _normalize_doc_phrase(raw: str) -> Tuple[str, str, str]:
             "Identity & Address Proof",
             "Obtain a valid government photo ID and address document (Voter ID, Driving License, or Utility Bill).",
             "Valid photo identity and current residential address proof.",
+        )
+
+    # 18. Job Card (MGNREGA)
+    if "job card" in pl:
+        return (
+            "MGNREGA Job Card",
+            "Apply for a Job Card at your local Gram Panchayat office to register for guaranteed rural wage employment.",
+            "Valid MGNREGA Job Card issued by the local Gram Panchayat.",
+        )
+
+    # 19. Passport / Visa
+    if "passport" in pl or "visa" in pl:
+        return (
+            "Valid Indian Passport & Visa Documents",
+            "Apply for or renew your Indian Passport at the nearest Passport Seva Kendra.",
+            "Valid Indian Passport with appropriate student visa documentation.",
         )
 
     # Default fallback

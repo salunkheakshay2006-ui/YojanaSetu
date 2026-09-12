@@ -39,6 +39,11 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
   const passedReasons = scheme.reasons?.passed || [];
   const failedReasons = scheme.reasons?.failed || [];
   const unresolvedReasons = scheme.reasons?.unresolved || [];
+  const isMetadataOnly = scheme.rule_status === "not_configured";
+  const unavailable = "Data not configured";
+  const scopeText = scheme.scope === "Maharashtra"
+    ? "Maharashtra Only"
+    : scheme.scope || unavailable;
 
   // Parse documents list if formatted with semicolons
   const rawDocs = scheme.documents_summary || scheme.documents_required || "";
@@ -64,12 +69,19 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
               <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full text-slate-600 bg-slate-100 border border-slate-200">
                 {scheme.scope === "Maharashtra"
                   ? "Maharashtra State Scheme"
-                  : "Central Government Scheme"}
+                  : scheme.scope
+                    ? `${scheme.scope} Scheme`
+                    : "Scope not configured"}
               </span>
             </div>
             <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight">
               {schemeName}
             </h3>
+            {scheme.rule_status === "not_configured" && (
+              <p className="text-xs font-semibold text-amber-700">
+                Eligibility rules not configured for this catalogue record.
+              </p>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             {onToggleSave && (
@@ -126,7 +138,7 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
                     <span className="text-emerald-900">Your Eligibility: Confirmed Eligible</span>
                   </>
                 )}
-                {(status === "conditional_eligible" || status === "conditional") && (
+                {(status === "possibly_eligible" || status === "conditional_eligible" || status === "conditional") && (
                   <>
                     <HelpCircle className="w-4 h-4 text-blue-600 shrink-0" />
                     <span className="text-blue-900">Your Eligibility: Conditionally Eligible</span>
@@ -229,7 +241,9 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Age Limit</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block">
-                  {scheme.min_age != null || scheme.max_age != null
+                  {isMetadataOnly
+                    ? unavailable
+                    : scheme.min_age != null || scheme.max_age != null
                     ? `${scheme.min_age ?? 0} to ${scheme.max_age ?? 120} years`
                     : "No specific age limit"}
                 </span>
@@ -238,7 +252,9 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Income Ceiling</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block">
-                  {scheme.max_income != null
+                  {isMetadataOnly
+                    ? unavailable
+                    : scheme.max_income != null
                     ? `Up to ₹${Number(scheme.max_income).toLocaleString("en-IN")}/year`
                     : "No income limit"}
                 </span>
@@ -247,41 +263,44 @@ export default function SchemeDetailModal({ scheme, onClose, isSaved = false, on
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Gender</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block capitalize">
-                  {scheme.gender || "Any"}
+                  {isMetadataOnly ? unavailable : scheme.gender || "Any"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Occupation</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block capitalize">
-                  {scheme.occupation || "Any"}
+                  {isMetadataOnly ? unavailable : scheme.occupation || "Any"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Community / Category</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block">
-                  {scheme.caste_eligibility || "Any"}
+                  {isMetadataOnly ? unavailable : scheme.caste_eligibility || "Any"}
                 </span>
               </div>
 
               <div className="p-3 rounded-xl border border-slate-200 bg-white">
                 <span className="text-[11px] text-slate-400 block font-medium">Region / Scope</span>
                 <span className="font-bold text-slate-800 text-xs mt-0.5 block">
-                  {scheme.scope === "Maharashtra" ? "Maharashtra Only" : "All India (Central)"}
+                  {scopeText}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Section 4: What documents may be needed? */}
-          {docsList.length > 0 && (
+          {(docsList.length > 0 || isMetadataOnly) && (
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-900 uppercase tracking-wider">
                 <FileText className="w-4 h-4 text-slate-600" />
                 What documents may be needed?
               </div>
               <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2">
+                {isMetadataOnly && docsList.length === 0 && (
+                  <p className="text-xs text-slate-600">Document requirements not configured for this catalogue record.</p>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {docsList.map((doc, idx) => (
                     <div

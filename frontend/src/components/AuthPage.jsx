@@ -11,7 +11,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 
 export default function AuthPage({ onContinueGuest = null }) {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, supabaseConfigured } = useAuth();
   const { language, setLanguage, t, supportedLanguages } = useLanguage();
 
   const [mode, setMode] = useState("signin"); // "signin" or "signup"
@@ -154,8 +154,8 @@ export default function AuthPage({ onContinueGuest = null }) {
       <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-white to-emerald-600"></div>
 
       {/* Language Switcher in Header */}
-      <div className="max-w-md mx-auto w-full px-4 pt-4 flex justify-end">
-        <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-xs">
+      <div className="w-full max-w-md mx-auto px-4 pt-4 flex justify-center sm:justify-end">
+        <div className="flex max-w-full flex-wrap items-center justify-center bg-slate-100 p-0.5 rounded-xl border border-slate-200 shadow-xs">
           {supportedLanguages.map((lang) => (
             <button
               key={lang.code}
@@ -196,6 +196,11 @@ export default function AuthPage({ onContinueGuest = null }) {
 
           {/* Auth Card */}
           <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6">
+            {!supabaseConfigured && (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs leading-relaxed">
+                Authenticated sign-in requires Supabase configuration. You can continue securely as a guest.
+              </div>
+            )}
             {/* Tab Toggle */}
             <div className="flex bg-slate-100 p-1 rounded-xl">
               <button

@@ -18,7 +18,7 @@ def checkEligibility(
     goals: Optional[str] = None,
     available_docs: Optional[str] = None,
 ):
-    """Check a citizen against all 20 schemes using structured eligibility rules."""
+    """Check a citizen against the schemes with configured structured rules."""
     citizen = citizen_store.get_citizen(citizen_id)
     if citizen is None:
         return JSONResponse(

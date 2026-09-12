@@ -1,5 +1,5 @@
-﻿"""
-One-time import script: loads all 20 schemes from schemes.csv into PostgreSQL.
+"""
+One-time import script: loads all 40 schemes from schemes.csv into database.
 
 Run from the backend/ directory:
     python data/import_schemes.py
@@ -26,13 +26,13 @@ CSV_PATH = os.path.join(os.path.dirname(__file__), "schemes.csv")
 
 INSERT_SQL = text("""
     INSERT INTO schemes (
-        id, name, description, benefit, source_url,
+        id, scheme_type, name, description, benefit, source_url,
         category, scope, source, last_verified, documents_summary,
         gender, caste_eligibility, occupation, state,
         is_student_required, is_farmer_required, is_disabled_required,
         min_age, max_age, min_income, max_income, documents_required
     ) VALUES (
-        :id, :name, :description, :benefit, :source_url,
+        :id, :scheme_type, :name, :description, :benefit, :source_url,
         :category, :scope, :source, :last_verified, :documents_summary,
         :gender, :caste_eligibility, :occupation, :state,
         :is_student_required, :is_farmer_required, :is_disabled_required,
@@ -75,6 +75,7 @@ def import_schemes() -> None:
             db.execute(INSERT_SQL, {
                 # --- Fields directly from CSV ---
                 "id":                   str(uuid.uuid4()),
+                "scheme_type":          "government",
                 "name":                 name,
                 "description":          row["eligibility_summary"].strip(),
                 "benefit":              row["benefit_summary"].strip(),
@@ -112,10 +113,10 @@ def import_schemes() -> None:
     with SessionLocal() as db:
         total = db.execute(text("SELECT COUNT(*) FROM schemes")).scalar()
         print(f"SELECT COUNT(*) FROM schemes  =>  {total}")
-        if total == 20:
-            print("PASS: exactly 20 schemes in the database.")
+        if total == 40:
+            print("PASS: exactly 40 schemes in the database.")
         else:
-            print(f"WARNING: expected 20, got {total}.")
+            print(f"WARNING: expected 40, got {total}.")
 
 
 if __name__ == "__main__":

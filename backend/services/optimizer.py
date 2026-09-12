@@ -59,7 +59,7 @@ VALID_GOAL_IDS: Set[str] = {
 GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     "education": {
         "title": "Education",
-        "categories": ["Education"],
+        "categories": ["Education", "Education and Disability"],
         "related_categories": [
             "Skill Development",
             "Employment and Internship",
@@ -69,16 +69,22 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             "Prime Minister's Scholarship Scheme",
             "Educational Assistance to the 10th to 12th Students",
             "National Means-Cum-Merit Scholarship Scheme",
+            "National Overseas Scholarship For Scheduled Caste Candidates",
+            "Post Matric Scholarship Students With Disabilities",
+            "Post Matric Scholarship Scheme For The Students Belonging To Scheduled Tribe For Studies In India",
+            "Post-Matric Scholarship To VJNT Students - Maharashtra",
+            "National Overseas Scholarship For Students With Disabilities",
         ],
     },
     "employment": {
         "title": "Employment",
-        "categories": ["Employment and Internship", "Skill Development"],
+        "categories": ["Employment and Internship", "Skill Development", "Employment"],
         "related_categories": [
             "Education",
             "Skill Development and Social Empowerment",
             "Microenterprise Credit",
             "Artisans and Craftspeople",
+            "Science and Technology",
         ],
         "schemes": [
             "Prime Minister’s Internship Scheme",
@@ -86,11 +92,13 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             "Craftsman Training Scheme - Maharashtra",
             "Pradhan Mantri Kaushal Vikas Yojana - Short Term Training",
             "PM-DAKSH",
+            "Mahatma Gandhi National Rural Employment Guarantee Act",
+            "Women Scientist Scheme-C",
         ],
     },
     "healthcare": {
         "title": "Healthcare",
-        "categories": ["Health and Wellness", "Maternity and Nutrition", "Insurance"],
+        "categories": ["Health and Wellness", "Maternity and Nutrition", "Insurance", "Insurance and Social Security"],
         "related_categories": [
             "Food Security",
             "Social Security",
@@ -103,22 +111,27 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
             "Ayushman Bharat - PM-JAY",
             "Pradhan Mantri Matru Vandana Yojana",
             "Pradhan Mantri Jeevan Jyoti Bima Yojana",
+            "Pradhan Mantri Suraksha Bima Yojana",
+            "Aam Aadmi Bima Yojana (Maharashtra)",
         ],
     },
     "skill_development": {
         "title": "Skill Development",
-        "categories": ["Skill Development", "Skill Development and Social Empowerment"],
+        "categories": ["Skill Development", "Skill Development and Social Empowerment", "Science and Technology"],
         "related_categories": [
             "Employment and Internship",
             "Education",
             "Microenterprise Credit",
             "Artisans and Craftspeople",
+            "Employment",
         ],
         "schemes": [
             "Craftsman Training Scheme - Maharashtra",
             "Pradhan Mantri Kaushal Vikas Yojana - Short Term Training",
             "PM-DAKSH",
             "PM Vishwakarma",
+            "Skill Loan Scheme",
+            "Women Scientist Scheme-C",
         ],
     },
     "housing": {
@@ -131,12 +144,13 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         ],
         "schemes": [
             "Pradhan Mantri Awas Yojana - Urban",
+            "Pradhan Mantri Awaas Yojana - Gramin",
             "Pradhan Mantri Ujjwala Yojana 2.0",
         ],
     },
     "agriculture": {
         "title": "Agriculture",
-        "categories": ["Agriculture and Crop Insurance", "Agriculture and Income Support"],
+        "categories": ["Agriculture and Crop Insurance", "Agriculture and Income Support", "Agriculture", "Agriculture and Women Empowerment"],
         "related_categories": [
             "Health and Wellness",
             "Insurance",
@@ -149,19 +163,25 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
         "schemes": [
             "Pradhan Mantri Kisan Samman Nidhi",
             "Pradhan Mantri Fasal Bima Yojana",
+            "Pradhan Mantri Krishi Sinchayee Yojana: Per Drop More Crop",
+            "Mahila Kisan Yojana (Maharashtra)",
         ],
     },
     "business": {
         "title": "Business",
-        "categories": ["Microenterprise Credit", "Artisans and Craftspeople"],
+        "categories": ["Microenterprise Credit", "Artisans and Craftspeople", "Business and Entrepreneurship", "Microenterprise Credit and Women Empowerment"],
         "related_categories": [
             "Skill Development",
             "Employment and Internship",
             "Skill Development and Social Empowerment",
+            "Banking and Financial Inclusion",
         ],
         "schemes": [
             "Pradhan Mantri Mudra Yojana",
             "PM Vishwakarma",
+            "Stand-Up India",
+            "Mahila Samridhi Yojana (Maharashtra)",
+            "National Pension Scheme For Traders And Self Employed Persons",
         ],
     },
     "food_security": {
@@ -180,27 +200,37 @@ GOAL_DEFINITIONS: Dict[str, Dict[str, Any]] = {
     },
     "pension": {
         "title": "Pension",
-        "categories": ["Pension and Social Security", "Social Security"],
+        "categories": ["Pension and Social Security", "Social Security", "Banking and Financial Inclusion"],
         "related_categories": [
             "Health and Wellness",
             "Insurance",
             "Food Security",
+            "Disability and Social Welfare",
         ],
         "schemes": [
             "Atal Pension Yojana",
             "National Family Benefit Scheme",
+            "Indira Gandhi National Old Age Pension Scheme",
+            "Indira Gandhi National Widow Pension Scheme",
+            "Indira Gandhi National Disability Pension Scheme",
+            "National Pension Scheme For Traders And Self Employed Persons",
+            "Pradhan Mantri Jan Dhan Yojana",
         ],
     },
     "disability_support": {
         "title": "Disability Support",
-        "categories": ["Disability and Social Welfare"],
+        "categories": ["Disability and Social Welfare", "Education and Disability"],
         "related_categories": [
             "Health and Wellness",
             "Social Security",
             "Pension and Social Security",
+            "Education",
         ],
         "schemes": [
             "Homes For Intellectually Impaired Persons",
+            "Indira Gandhi National Disability Pension Scheme",
+            "Post Matric Scholarship Students With Disabilities",
+            "National Overseas Scholarship For Students With Disabilities",
         ],
     },
 }

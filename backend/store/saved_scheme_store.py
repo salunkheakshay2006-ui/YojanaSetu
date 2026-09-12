@@ -45,7 +45,11 @@ def get_user_saved_schemes(user_id: str) -> List[dict]:
         row_dict["scheme_id"] = row_dict["scheme_id"]
         row_dict["slug"] = slug
         if row_dict.get("saved_at"):
-            row_dict["saved_at"] = row_dict["saved_at"].isoformat()
+            row_dict["saved_at"] = (
+                row_dict["saved_at"].isoformat()
+                if hasattr(row_dict["saved_at"], "isoformat")
+                else str(row_dict["saved_at"])
+            )
         results.append(row_dict)
 
     return results
@@ -55,7 +59,7 @@ def save_user_scheme(user_id: str, scheme_id: str) -> Optional[dict]:
     """
     Save a scheme for user_id.
     If scheme does not exist in schemes catalog, returns None.
-    If already saved (ON CONFLICT), does nothing and returns existing record info.
+    If already saved, does nothing and returns existing record info.
     """
     scheme = get_scheme_by_id(scheme_id)
     if scheme is None:
@@ -64,15 +68,14 @@ def save_user_scheme(user_id: str, scheme_id: str) -> Optional[dict]:
     record_id = str(uuid.uuid4())
     canonical_id = scheme.id
 
-    sql = text("""
-        INSERT INTO saved_schemes (id, user_id, scheme_id, created_at)
-        VALUES (:id, :user_id, :scheme_id, NOW())
-        ON CONFLICT (user_id, scheme_id) DO NOTHING
-    """)
+    from models.saved_scheme_orm import SavedSchemeTable
 
     with SessionLocal() as db:
-        db.execute(sql, {"id": record_id, "user_id": user_id, "scheme_id": canonical_id})
-        db.commit()
+        existing = db.query(SavedSchemeTable).filter_by(user_id=user_id, scheme_id=canonical_id).first()
+        if not existing:
+            new_row = SavedSchemeTable(id=record_id, user_id=user_id, scheme_id=canonical_id)
+            db.add(new_row)
+            db.commit()
 
     return {
         "id": canonical_id,
@@ -93,18 +96,18 @@ def delete_user_saved_scheme(user_id: str, scheme_id: str) -> bool:
     if scheme and scheme.id not in target_ids:
         target_ids.append(scheme.id)
 
-    sql_saved = text("""
-        DELETE FROM saved_schemes
-        WHERE user_id = :user_id AND scheme_id = ANY(:target_ids)
-    """)
-    sql_tracker = text("""
-        DELETE FROM application_tracker
-        WHERE user_id = :user_id AND scheme_id = ANY(:target_ids)
-    """)
+    from models.saved_scheme_orm import SavedSchemeTable
+    from models.application_tracker_orm import ApplicationTrackerTable
 
     with SessionLocal() as db:
         # Also clean up any corresponding tracker entry (M8 business rule: no orphan tracker entries)
-        db.execute(sql_tracker, {"user_id": user_id, "target_ids": target_ids})
-        result = db.execute(sql_saved, {"user_id": user_id, "target_ids": target_ids})
+        db.query(ApplicationTrackerTable).filter(
+            ApplicationTrackerTable.user_id == user_id,
+            ApplicationTrackerTable.scheme_id.in_(target_ids)
+        ).delete(synchronize_session=False)
+        deleted = db.query(SavedSchemeTable).filter(
+            SavedSchemeTable.user_id == user_id,
+            SavedSchemeTable.scheme_id.in_(target_ids)
+        ).delete(synchronize_session=False)
         db.commit()
-        return result.rowcount > 0
+        return deleted > 0

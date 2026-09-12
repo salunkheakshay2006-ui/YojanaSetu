@@ -13,8 +13,10 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.error(
+const hasSupabaseConfig = Boolean(supabaseUrl && supabaseAnonKey);
+
+if (!hasSupabaseConfig) {
+  console.warn(
     "[YojanaSetu] Missing Supabase configuration.\n" +
       "Please create frontend/.env with:\n" +
       "  VITE_SUPABASE_URL=https://your-project.supabase.co\n" +
@@ -23,4 +25,8 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl || "", supabaseAnonKey || "");
+export const isSupabaseConfigured = hasSupabaseConfig;
+
+export const supabase = hasSupabaseConfig
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : null;

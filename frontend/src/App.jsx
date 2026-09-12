@@ -39,6 +39,7 @@ export default function App() {
 
   // Saved Schemes state (backed by PostgreSQL for authenticated users, with localStorage cache/fallback)
   const [savedSchemes, setSavedSchemes] = useState(() => {
+    if (session?.access_token) return [];
     try {
       const stored = localStorage.getItem(SAVED_SCHEMES_STORAGE_KEY);
       return stored ? JSON.parse(stored) : [];
@@ -64,11 +65,6 @@ export default function App() {
           const json = await res.json();
           if (isMounted && json.data) {
             setSavedSchemes(json.data);
-            try {
-              localStorage.setItem(SAVED_SCHEMES_STORAGE_KEY, JSON.stringify(json.data));
-            } catch (e) {
-              console.error("Failed to update localStorage cache", e);
-            }
           }
         }
       } catch (err) {
@@ -87,6 +83,7 @@ export default function App() {
   // Application Tracker state backed by separate localStorage key
   // Mapping: { [schemeId]: "Saved" | "Planning to Apply" | "Application Started" | "Submitted" }
   const [trackerStatuses, setTrackerStatuses] = useState(() => {
+    if (session?.access_token) return {};
     try {
       const stored = localStorage.getItem(APPLICATION_TRACKER_STORAGE_KEY);
       return stored ? JSON.parse(stored) : {};
@@ -111,11 +108,6 @@ export default function App() {
           const json = await res.json();
           if (isMounted && json.data) {
             setTrackerStatuses(json.data);
-            try {
-              localStorage.setItem(APPLICATION_TRACKER_STORAGE_KEY, JSON.stringify(json.data));
-            } catch (e) {
-              console.error("Failed to update tracker localStorage cache", e);
-            }
           }
         }
       } catch (err) {
@@ -131,16 +123,18 @@ export default function App() {
 
   // Sync savedSchemes to localStorage on every change as local cache/fallback
   useEffect(() => {
+    if (session?.access_token) return;
     try {
       localStorage.setItem(SAVED_SCHEMES_STORAGE_KEY, JSON.stringify(savedSchemes));
     } catch (e) {
       console.error("Failed to write saved schemes to localStorage", e);
     }
-  }, [savedSchemes]);
+  }, [savedSchemes, session?.access_token]);
 
   // Personal Documents State (Available docs and Custom docs)
   // Backed by PostgreSQL for authenticated users, with localStorage fallback for guests
   const [availableDocs, setAvailableDocs] = useState(() => {
+    if (session?.access_token) return [];
     try {
       const stored = localStorage.getItem(MY_DOCUMENTS_STORAGE_KEY);
       if (stored) {
@@ -155,6 +149,7 @@ export default function App() {
   });
 
   const [customDocs, setCustomDocs] = useState(() => {
+    if (session?.access_token) return [];
     try {
       const stored = localStorage.getItem(MY_DOCUMENTS_STORAGE_KEY);
       if (stored) {
@@ -170,6 +165,7 @@ export default function App() {
 
   // Sync myDocuments to localStorage
   useEffect(() => {
+    if (session?.access_token) return;
     try {
       localStorage.setItem(
         MY_DOCUMENTS_STORAGE_KEY,
@@ -178,7 +174,7 @@ export default function App() {
     } catch (e) {
       console.error("Failed to write documents to localStorage", e);
     }
-  }, [availableDocs, customDocs]);
+  }, [availableDocs, customDocs, session?.access_token]);
 
   // Fetch documents from PostgreSQL when session is available
   useEffect(() => {
@@ -612,7 +608,7 @@ export default function App() {
   // --- Main Application (Guest or Authenticated) ---
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50 text-slate-900">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-slate-50 text-slate-900">
       {/* Navbar */}
       <Navbar
         onReset={handleReset}
@@ -626,12 +622,13 @@ export default function App() {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
         user={user}
+        isGuest={isGuest && !user}
         onSignOut={signOut}
         onSignIn={handlePromptSignIn}
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8">
+      <main className="flex-1 min-w-0 max-w-6xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-8">
         {/* My Documents Tab */}
         {activeTab === "documents" && (
           <MyDocumentsPage

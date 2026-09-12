@@ -16,12 +16,18 @@ from routers.saved_schemes import router as saved_schemes_router
 from routers.tracker import router as tracker_router
 from routers.preferences import router as preferences_router
 from routers.documents import router as documents_router
+from sqlalchemy import text
+from data.import_schemes import import_schemes
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Create all tables on startup (no-op if they already exist)."""
     Base.metadata.create_all(bind=engine)
+    with engine.connect() as db:
+        scheme_count = db.execute(text("SELECT COUNT(*) FROM schemes")).scalar_one()
+    if scheme_count == 0:
+        import_schemes()
     yield
 
 

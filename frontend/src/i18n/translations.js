@@ -19,7 +19,7 @@ export const TRANSLATIONS = {
     "nav.saved_schemes": "Saved Schemes",
     "nav.tracker": "Application Tracker",
     "nav.new_profile": "New Profile Check",
-    "nav.official_schemes": "20 Official Schemes",
+    "nav.official_schemes": "Configured Schemes",
     "nav.sign_out": "Sign Out",
     "nav.language": "Language",
 
@@ -231,7 +231,7 @@ export const TRANSLATIONS = {
 
     // Search Schemes Page
     "search.title": "Official Government Schemes Directory",
-    "search.subtitle": "Browse and search all 20 verified central and state schemes in the YojanaSetu knowledge base.",
+    "search.subtitle": "Browse and search the complete government schemes catalogue in the YojanaSetu knowledge base.",
     "search.search_placeholder": "Search by scheme name, keyword, or benefits...",
     "search.all_categories": "All Categories",
     "search.all_scopes": "All Scopes (Central & State)",
@@ -339,7 +339,7 @@ export const TRANSLATIONS = {
     "nav.saved_schemes": "सहेजी गई योजनाएं",
     "nav.tracker": "आवेदन ट्रैकर",
     "nav.new_profile": "नया प्रोफाइल जांचें",
-    "nav.official_schemes": "20 आधिकारिक योजनाएं",
+    "nav.official_schemes": "आधिकारिक योजनाएं",
     "nav.sign_out": "लॉग आउट",
     "nav.language": "भाषा",
 
@@ -551,7 +551,7 @@ export const TRANSLATIONS = {
 
     // Search Schemes Page
     "search.title": "आधिकारिक सरकारी योजनाओं की निर्देशिका",
-    "search.subtitle": "योजनासेतु डेटाबेस की सभी 20 प्रमाणित केंद्रीय और राज्य स्तरीय योजनाओं को खोजें।",
+    "search.subtitle": "योजनासेतु डेटाबेस में सरकारी योजनाओं के पूरे कैटलॉग को खोजें।",
     "search.search_placeholder": "योजना का नाम, कीवर्ड या लाभ खोजें...",
     "search.all_categories": "सभी श्रेणियां",
     "search.all_scopes": "सभी स्तर (केंद्र व राज्य)",
@@ -659,7 +659,7 @@ export const TRANSLATIONS = {
     "nav.saved_schemes": "जतन केलेल्या योजना",
     "nav.tracker": "अर्ज ट्रॅकर",
     "nav.new_profile": "नवीन प्रोफाईल तपासा",
-    "nav.official_schemes": "20 अधिकृत योजना",
+    "nav.official_schemes": "अधिकृत योजना",
     "nav.sign_out": "लॉग आउट",
     "nav.language": "भाषा",
 
@@ -871,7 +871,7 @@ export const TRANSLATIONS = {
 
     // Search Schemes Page
     "search.title": "अधिकृत शासकीय योजना निर्देशिका",
-    "search.subtitle": "योजनासेतू डेटाबेसमधील सर्व 20 प्रमाणित केंद्रीय आणि राज्य योजना शोधा.",
+    "search.subtitle": "योजनासेतू डेटाबेसमधील सरकारी योजनांचा संपूर्ण कॅटलॉग शोधा.",
     "search.search_placeholder": "योजनेचे नाव, शब्द किंवा लाभ शोधा...",
     "search.all_categories": "सर्व वर्गवारी",
     "search.all_scopes": "सर्व स्तर (केंद्र व राज्य)",

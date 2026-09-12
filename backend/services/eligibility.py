@@ -59,6 +59,58 @@ SCHEME_HARD_RULES: Dict[str, Dict[str, Any]] = {
 
     # Homes For Intellectually Impaired Persons — "intellectual disability"
     "hiip": {"is_disabled_required": True},
+
+    # --- 20 New Schemes Explicit Rules ---
+    # Scheme 21: Pradhan Mantri Suraksha Bima Yojana — aged 18 to 70
+    "pmsby": {"min_age": 18, "max_age": 70},
+
+    # Scheme 23: Pradhan Mantri Jan Dhan Yojana — aged 10+
+    "pmjdy": {"min_age": 10},
+
+    # Scheme 24: MGNREGA — adult rural workers aged 18+
+    "mgnrega": {"min_age": 18},
+
+    # Scheme 25: PMKSY Per Drop More Crop — farmers required
+    "pmksypdmc": {"is_farmer_required": True},
+
+    # Scheme 26: Indira Gandhi National Old Age Pension Scheme — aged 60+
+    "ignoaps": {"min_age": 60},
+
+    # Scheme 27: Indira Gandhi National Widow Pension Scheme — widows aged 40-79
+    "ignwps": {"min_age": 40, "max_age": 79, "gender": "female"},
+
+    # Scheme 28: Indira Gandhi National Disability Pension Scheme — aged 18-79, disability required
+    "igndps": {"min_age": 18, "max_age": 79, "is_disabled_required": True},
+
+    # Scheme 29: Stand-Up India — age 18+
+    "sui": {"min_age": 18},
+
+    # Scheme 30: Skill Loan Scheme — age 18+
+    "sl": {"min_age": 18},
+
+    # Scheme 31: Women Scientist Scheme-C — women aged 27-45
+    "wos-c": {"min_age": 27, "max_age": 45, "gender": "female"},
+
+    # Scheme 32: National Overseas Scholarship For SC Candidates — age up to 35
+    "nos-sc": {"max_age": 35},
+
+    # Scheme 33: Post Matric Scholarship Students With Disabilities — disability required
+    "post-dis": {"is_disabled_required": True},
+
+    # Scheme 35: NPS for Traders and Self Employed Persons — aged 18-40
+    "nps-tsep": {"min_age": 18, "max_age": 40},
+
+    # Scheme 36: Mahila Kisan Yojana (Maharashtra) — female farmers
+    "mkym": {"gender": "female", "is_farmer_required": True},
+
+    # Scheme 37: Mahila Samridhi Yojana (Maharashtra) — women aged 18-50
+    "msym": {"min_age": 18, "max_age": 50, "gender": "female"},
+
+    # Scheme 39: Aam Aadmi Bima Yojana (Maharashtra) — aged 18-59
+    "aabym": {"min_age": 18, "max_age": 59},
+
+    # Scheme 40: National Overseas Scholarship For Students With Disabilities — age up to 35, disability required
+    "nos-swd": {"max_age": 35, "is_disabled_required": True},
 }
 
 
@@ -66,7 +118,7 @@ SCHEME_HARD_RULES: Dict[str, Dict[str, Any]] = {
 # Per-scheme UNRESOLVED CONDITIONS
 # Conditions that exist in the scheme but CANNOT be checked from the
 # current CitizenProfile fields. Source: eligibility_analysis.md.
-# All 20 schemes have at least one unresolved condition.
+# All 40 schemes have at least one unresolved condition.
 # ---------------------------------------------------------------------------
 SCHEME_UNRESOLVED: Dict[str, List[str]] = {
     "pmss": [
@@ -153,6 +205,91 @@ SCHEME_UNRESOLVED: Dict[str, List[str]] = {
     "pmis": [
         "Participating company availability and programme conditions require official portal check",
         "Current employment status details are not sufficient in the citizen profile",
+    ],
+
+    # --- 20 New Schemes Unresolved Conditions ---
+    "pmsby": [
+        "Auto-debit authorization and bank branch verification required",
+        "Past disability assessment requires formal medical report",
+    ],
+    "pmay-g": [
+        "Houseless or kutcha house status verified through Awaas+ or SECC gram sabha list",
+        "Gram panchayat beneficiary priority ranking cannot be checked from profile",
+    ],
+    "pmjdy": [
+        "Absence of other basic savings accounts requires bank branch verification",
+        "Overdraft qualification depends on account transaction track record",
+    ],
+    "mgnrega": [
+        "Willingness to do unskilled manual work requires local Gram Panchayat Job Card registration",
+        "Local demand-based employment allocation depends on Gram Panchayat schedule",
+    ],
+    "pmksypdmc": [
+        "Assured water source and micro-irrigation feasibility require district agriculture survey",
+        "Installation quotation from authorized micro-irrigation vendor required",
+    ],
+    "ignoaps": [
+        "BPL household inclusion in official state NSAP register requires municipal/tehsildar verification",
+    ],
+    "ignwps": [
+        "Widow status verified via husband death certificate",
+        "BPL inclusion in state NSAP list requires municipal/panchayat verification",
+    ],
+    "igndps": [
+        "Certified severe disability degree (80% and above) requires medical board/UDID verification",
+        "BPL household verification requires state government register check",
+    ],
+    "sui": [
+        "SC, ST, or woman entrepreneur status and greenfield enterprise eligibility verified by lending bank",
+        "Detailed project appraisal and non-defaulter credit history checked by bank",
+    ],
+    "sl": [
+        "Admission to course run by ITI, polytechnic, or NSDC-recognized training provider required",
+        "Course duration and approved fee structure require bank appraisal",
+    ],
+    "wos-c": [
+        "Master's or Ph.D. degree in Science or Engineering requires academic credential verification",
+        "Break in career verification and qualifying written exam/interview conducted by TIFAC",
+    ],
+    "nos-sc": [
+        "Unconditional offer of admission from top 500 QS world ranked university required",
+        "Minimum 60% marks in qualifying bachelor's degree verified by Ministry",
+        "Total family income ceiling (under ₹8,00,000) verified through competent authority income certificate",
+    ],
+    "post-dis": [
+        "Certified disability of 40% and above verified via UDID card",
+        "Admission to recognized post-matric course verified by educational institution",
+        "Parental income limit (up to ₹2.5 LPA) requires revenue authority certificate",
+    ],
+    "post-st": [
+        "Scheduled Tribe (ST) certificate validity verified by district scrutiny committee",
+        "Annual family income limit (up to ₹2.5 LPA) verified by competent revenue authority",
+        "Enrolment in recognized post-matric course verified by college portal",
+    ],
+    "nps-tsep": [
+        "Annual turnover under ₹1.5 Crore verified by GST declaration or self-certification",
+        "Exclusion check for EPFO, ESIC, NPS, PM-SYM, and income tax payers",
+    ],
+    "mkym": [
+        "Maharashtra domicile and agricultural landholding or tenant farming status verified by revenue office",
+        "Target category membership verified via local verification",
+    ],
+    "msym": [
+        "Backward class category certification verified through Maharashtra state corporation",
+        "Business project feasibility evaluated by financing agency",
+    ],
+    "pmsvs-maharashtra": [
+        "VJNT community certificate and caste validity certificate verified via MahaDBT portal",
+        "Family income ceiling verified via Tehsildar income certificate",
+    ],
+    "aabym": [
+        "Membership in notified unorganized vocational group or rural landless agricultural labour status verified",
+        "Nodal agency or state implementation society registration check",
+    ],
+    "nos-swd": [
+        "Admission to top 500 QS world ranked foreign university verified by Ministry of Social Justice",
+        "Disability of 40% and above verified via UDID card",
+        "Family income limit (below ₹8 LPA) verified by revenue certificate",
     ],
 }
 
@@ -287,9 +424,9 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
     # that are now resolvable, without touching entries that remain unknown.
     unresolved = list(unresolved)
 
-    # -- has_bank_account (PMJJBY, APY) --
+    # -- has_bank_account (PMJJBY, APY, PMSBY) --
     _BANK_UNRESOLVED = "Bank or post-office account ownership is not in the citizen profile"
-    if slug in ("pmjjby", "apy"):
+    if slug in ("pmjjby", "apy", "pmsby"):
         if not citizen.has_bank_account:
             failed.append("Scheme requires a bank or post-office account; citizen does not have one")
         else:
@@ -297,9 +434,9 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
             if _BANK_UNRESOLVED in unresolved:
                 unresolved.remove(_BANK_UNRESOLVED)
 
-    # -- is_bpl (NFBS) --
+    # -- is_bpl (NFBS, IGNOAPS, IGNWPS, IGNDPS) --
     _BPL_UNRESOLVED = "BPL status is not in the citizen profile"
-    if slug == "nfbs":
+    if slug in ("nfbs", "ignoaps", "ignwps", "igndps"):
         if not citizen.is_bpl:
             failed.append("Scheme targets BPL families; citizen does not hold a BPL card")
         else:
@@ -323,9 +460,9 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
             if _RATION_UNRESOLVED in unresolved:
                 unresolved.remove(_RATION_UNRESOLVED)
 
-    # -- owns_land (PM-Kisan only; NOT applied to PMFBY — tenancy also valid) --
+    # -- owns_land (PM-Kisan, PMKSY Per Drop More Crop) --
     _LAND_UNRESOLVED = "Land ownership records are not in the citizen profile"
-    if slug == "pm-kisan":
+    if slug in ("pm-kisan", "pmksypdmc"):
         if not citizen.owns_land:
             failed.append(
                 "Scheme requires landholding farmer families; citizen does not own agricultural land"
@@ -349,12 +486,12 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
             if _PREG_UNRESOLVED in unresolved:
                 unresolved.remove(_PREG_UNRESOLVED)
 
-    # -- owns_business (PMMY) --
+    # -- owns_business (PMMY, NPS-TSEP) --
     _BIZ_UNRESOLVED = "Business or enterprise ownership and type are not in the citizen profile"
-    if slug == "pmmy":
+    if slug in ("pmmy", "nps-tsep"):
         if not citizen.owns_business:
             failed.append(
-                "Scheme targets micro/small enterprise owners; citizen does not own a business"
+                "Scheme targets micro/small enterprise or retail business owners; citizen does not own a business"
             )
         else:
             passed.append(
@@ -362,6 +499,31 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
             )
             if _BIZ_UNRESOLVED in unresolved:
                 unresolved.remove(_BIZ_UNRESOLVED)
+
+    # -- caste eligibility checks (POST-ST, NOS-SC, SUI) --
+    citizen_cat = citizen.category.value if hasattr(citizen.category, "value") else citizen.category
+    citizen_gen = citizen.gender.value if hasattr(citizen.gender, "value") else citizen.gender
+
+    if slug == "post-st":
+        if citizen_cat != "ST":
+            failed.append(f"Scheme is exclusively for Scheduled Tribe (ST) students; citizen category is '{citizen_cat}'")
+        else:
+            passed.append("Citizen belongs to Scheduled Tribe (ST) category")
+
+    if slug == "nos-sc":
+        if citizen_cat != "SC":
+            failed.append(f"Scheme is for Scheduled Caste (SC) candidates; citizen category is '{citizen_cat}'")
+        else:
+            passed.append("Citizen belongs to Scheduled Caste (SC) category")
+
+    if slug == "sui":
+        if citizen_gen != "female" and citizen_cat not in ("SC", "ST"):
+            failed.append(
+                f"Stand-Up India requires applicant to be a woman, SC, or ST entrepreneur; "
+                f"citizen is '{citizen_gen}' and '{citizen_cat}'"
+            )
+        else:
+            passed.append(f"Citizen satisfies demographic requirement for Stand-Up India ({citizen_gen} / {citizen_cat})")
 
     # --- Determine final status ---
     if failed:
@@ -384,6 +546,20 @@ def check_scheme(citizen: CitizenProfile, scheme: Scheme) -> Dict[str, Any]:
         "scheme_name": scheme.name,
         "category": scheme.category,
         "scope": scheme.scope,
+        "rule_status": "configured",
+        "scheme_type": scheme.scheme_type.value if hasattr(scheme.scheme_type, "value") else scheme.scheme_type,
+        "description": scheme.description,
+        "benefit": scheme.benefit,
+        "source": scheme.source,
+        "last_verified": scheme.last_verified,
+        "gender": scheme.gender.value if hasattr(scheme.gender, "value") else scheme.gender,
+        "min_age": scheme.min_age,
+        "max_age": scheme.max_age,
+        "min_income": scheme.min_income,
+        "max_income": scheme.max_income,
+        "occupation": scheme.occupation,
+        "state": scheme.state,
+        "caste_eligibility": scheme.caste_eligibility.value if hasattr(scheme.caste_eligibility, "value") else scheme.caste_eligibility,
         "status": status,
         "explanation": explanation,
         "reasons": {

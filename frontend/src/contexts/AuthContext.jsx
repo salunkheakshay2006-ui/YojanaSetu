@@ -11,7 +11,7 @@
  */
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
+import { isSupabaseConfigured, supabase } from "../lib/supabase";
 
 const AuthContext = createContext(undefined);
 
@@ -21,12 +21,23 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true); // true until initial session check completes
 
   useEffect(() => {
-    // 1. Restore existing session on mount
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
+    if (!supabase) {
       setLoading(false);
-    });
+      return undefined;
+    }
+
+    // 1. Restore existing session on mount
+    supabase.auth
+      .getSession()
+      .then(({ data: { session: currentSession } }) => {
+        setSession(currentSession);
+        setUser(currentSession?.user ?? null);
+      })
+      .catch(() => {
+        setSession(null);
+        setUser(null);
+      })
+      .finally(() => setLoading(false));
 
     // 2. Listen for auth state changes (login, logout, token refresh)
     const {
@@ -46,6 +57,9 @@ export function AuthProvider({ children }) {
    * Returns { data, error } from Supabase.
    */
   const signUp = async (email, password) => {
+    if (!supabase) {
+      return { data: null, error: { message: "Supabase authentication is not configured. Continue as Guest or configure Supabase credentials." } };
+    }
     const result = await supabase.auth.signUp({ email, password });
     return result;
   };
@@ -55,6 +69,9 @@ export function AuthProvider({ children }) {
    * Returns { data, error } from Supabase.
    */
   const signIn = async (email, password) => {
+    if (!supabase) {
+      return { data: null, error: { message: "Supabase authentication is not configured. Continue as Guest or configure Supabase credentials." } };
+    }
     const result = await supabase.auth.signInWithPassword({ email, password });
     return result;
   };
@@ -64,6 +81,11 @@ export function AuthProvider({ children }) {
    * Returns { error } from Supabase.
    */
   const signOut = async () => {
+    if (!supabase) {
+      setUser(null);
+      setSession(null);
+      return { error: null };
+    }
     const result = await supabase.auth.signOut();
     return result;
   };
@@ -72,6 +94,7 @@ export function AuthProvider({ children }) {
     user,
     session,
     loading,
+    supabaseConfigured: isSupabaseConfigured,
     signUp,
     signIn,
     signOut,

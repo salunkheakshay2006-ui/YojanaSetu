@@ -410,7 +410,7 @@ export default function SearchSchemesPage({
             Want to know which schemes you qualify for?
           </h3>
           <p className="text-xs text-emerald-800 max-w-xl">
-            Instead of searching manually, enter your details once. YojanaSetu automatically checks all 20 schemes, resolves conflicts, and generates your unified application checklist.
+            Instead of searching manually, enter your details once. YojanaSetu automatically checks all 40 schemes, resolves conflicts, and generates your unified application checklist.
           </p>
         </div>
         <button

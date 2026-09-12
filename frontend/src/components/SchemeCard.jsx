@@ -85,7 +85,11 @@ export default function SchemeCard({
             )}
 
             {/* Secondary Badge: Criteria Verification */}
-            {!isNotEligible && (
+            {scheme.rule_status === "not_configured" ? (
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-md border bg-amber-50/50 text-amber-800 border-amber-200">
+                Eligibility rules not configured
+              </span>
+            ) : !isNotEligible && (
               <span
                 className={`text-[11px] font-medium px-2 py-0.5 rounded-md border ${
                   isConfirmed

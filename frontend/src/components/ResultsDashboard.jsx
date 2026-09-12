@@ -237,7 +237,7 @@ export default function ResultsDashboard({
         </div>
 
         <div className="text-xs text-slate-500 hidden sm:block">
-          {t("nav.official_schemes", "Evaluated from 20 official government schemes")}
+          {t("nav.official_schemes", "Evaluated from configured government scheme rules")}
         </div>
       </div>
 

@@ -37,43 +37,13 @@ export default function OptimizedBundle({
 }) {
   const { t } = useLanguage();
 
-  // If optimized data is missing, fail safely with informative notice
-  if (!optimizedData) {
-    return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 text-center space-y-3 shadow-sm">
-        <div className="p-3 bg-slate-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto text-slate-500">
-          <Info className="w-6 h-6" />
-        </div>
-        <h3 className="text-lg font-bold text-slate-900">{t("optimizer.unavailable", "Optimized bundle is currently unavailable")}</h3>
-        <p className="text-xs text-slate-500 max-w-md mx-auto">
-          {t("optimizer.subtitle", "The autonomous optimizer could not evaluate combinations at this moment. You can still explore your full eligibility results below.")}
-        </p>
-      </div>
-    );
-  }
-
-  const { primary, alternatives = [], disclaimer } = optimizedData;
-
-  if (!primary) {
-    return (
-      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 text-center space-y-3 shadow-sm">
-        <div className="p-3 bg-amber-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto text-amber-600">
-          <AlertCircle className="w-6 h-6" />
-        </div>
-        <h3 className="text-lg font-bold text-slate-900">
-          {t("optimizer.no_combo", "No focused scheme combination is currently available based on this profile")}
-        </h3>
-        <p className="text-xs text-slate-500 max-w-md mx-auto">
-          {optimizedData.message ||
-            t("hero.subtitle", "Based on the provided demographic and welfare criteria, no actionable combination met the optimizer thresholds. Check Future Opportunities to unlock potential schemes.")}
-        </p>
-      </div>
-    );
-  }
+  const { primary = null, alternatives = [], disclaimer, message } = optimizedData || {};
 
   // Build the list of valid views: Primary + any returned Alternatives
   const allViews = [
-    { ...primary, tabKey: "primary", tabLabel: primary.label || "Best Overall", tabIcon: Award },
+    ...(primary
+      ? [{ ...primary, tabKey: "primary", tabLabel: primary.label || "Best Overall", tabIcon: Award }]
+      : []),
     ...alternatives.map((alt, idx) => ({
       ...alt,
       tabKey: `alt-${idx}`,
@@ -82,9 +52,9 @@ export default function OptimizedBundle({
     })),
   ];
 
-  const [activeTabKey, setActiveTabKey] = useState(allViews[0].tabKey);
+  const [activeTabKey, setActiveTabKey] = useState(allViews[0]?.tabKey || "primary");
 
-  const activeCombo = allViews.find((v) => v.tabKey === activeTabKey) || allViews[0];
+  const activeCombo = allViews.find((v) => v.tabKey === activeTabKey) || allViews[0] || {};
 
   // Helper to look up full scheme object for modal details and complete document specs
   const getFullScheme = (schemeItem) => {
@@ -103,6 +73,37 @@ export default function OptimizedBundle({
   const liveBundleReadiness = useMemo(() => {
     return getBundleReadiness(comboFullSchemes, availableDocs);
   }, [comboFullSchemes, availableDocs]);
+
+  if (!optimizedData) {
+    return (
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 text-center space-y-3 shadow-sm">
+        <div className="p-3 bg-slate-100 rounded-full w-12 h-12 flex items-center justify-center mx-auto text-slate-500">
+          <Info className="w-6 h-6" />
+        </div>
+        <h3 className="text-lg font-bold text-slate-900">{t("optimizer.unavailable", "Optimized bundle is currently unavailable")}</h3>
+        <p className="text-xs text-slate-500 max-w-md mx-auto">
+          {t("optimizer.subtitle", "The autonomous optimizer could not evaluate combinations at this moment. You can still explore your full eligibility results below.")}
+        </p>
+      </div>
+    );
+  }
+
+  if (!primary) {
+    return (
+      <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 text-center space-y-3 shadow-sm">
+        <div className="p-3 bg-amber-50 rounded-full w-12 h-12 flex items-center justify-center mx-auto text-amber-600">
+          <AlertCircle className="w-6 h-6" />
+        </div>
+        <h3 className="text-lg font-bold text-slate-900">
+          {t("optimizer.no_combo", "No focused scheme combination is currently available based on this profile")}
+        </h3>
+        <p className="text-xs text-slate-500 max-w-md mx-auto">
+          {message ||
+            t("hero.subtitle", "Based on the provided demographic and welfare criteria, no actionable combination met the optimizer thresholds. Check Future Opportunities to unlock potential schemes.")}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

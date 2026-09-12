@@ -6,8 +6,7 @@ Enforces at most ONE documents record per authenticated user via unique user_id 
 """
 
 from datetime import datetime, timezone
-from sqlalchemy import DateTime, String, UniqueConstraint
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import DateTime, JSON, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
@@ -24,8 +23,8 @@ class CitizenDocumentsTable(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     user_id: Mapped[str] = mapped_column(String(64), nullable=False, unique=True, index=True)
-    available_docs: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
-    custom_docs: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    available_docs: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
+    custom_docs: Mapped[list] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         nullable=False,

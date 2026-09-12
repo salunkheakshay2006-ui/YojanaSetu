@@ -19,6 +19,7 @@ import {
   Zap,
   Layers,
   Award,
+  Compass,
 } from "lucide-react";
 import { STANDARD_DOCUMENTS } from "../data/standardDocuments";
 import { useLanguage } from "../contexts/LanguageContext";

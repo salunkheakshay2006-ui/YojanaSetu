@@ -1,27 +1,22 @@
 import React from "react";
-import { Shield, Sparkles, RefreshCw, Search, CheckCircle2, Bookmark, Clock, LogOut, User, Globe, FileText } from "lucide-react";
+import { Shield, RefreshCw, Search, CheckCircle2, Bookmark, Clock, LogOut, User, FileText } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
-export default function Navbar({ onReset, hasResults, activeTab = "eligibility", onTabChange, savedCount = 0, docsCount = 0, user = null, onSignOut = null, onSignIn = null }) {
+export default function Navbar({ onReset, hasResults, activeTab = "eligibility", onTabChange, savedCount = 0, docsCount = 0, user = null, isGuest = false, onSignOut = null, onSignIn = null }) {
   const { language, setLanguage, t, supportedLanguages } = useLanguage();
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
       <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-white to-emerald-600"></div>
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-3 cursor-pointer" onClick={onReset}>
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex min-w-0 shrink-0 items-center gap-3 cursor-pointer" onClick={onReset}>
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-700/20">
             <Shield className="w-5 h-5" />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xl font-black tracking-tight text-slate-900">
-                Yojana<span className="text-emerald-600">Setu</span>
-              </span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                {t("brand.prototype", "PS16 Prototype")}
-              </span>
-            </div>
+            <span className="text-xl font-black tracking-tight text-slate-900">
+              Yojana<span className="text-emerald-600">Setu</span>
+            </span>
             <p className="text-xs text-slate-500 hidden lg:block">
               {t("brand.tagline", "Autonomous Government Scheme-Bundle Optimizer for Citizens")}
             </p>
@@ -29,8 +24,8 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
         </div>
 
         {/* Main Navigation Links */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          <nav className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+        <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 sm:gap-3 lg:w-auto">
+          <nav className="order-3 flex min-w-0 max-w-full flex-1 items-center gap-1 overflow-x-auto rounded-xl bg-slate-100 p-1 lg:order-none lg:flex-none">
             <button
               onClick={() => onTabChange("eligibility")}
               className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
@@ -103,7 +98,7 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
           </nav>
 
           {/* Language Selector */}
-          <div className="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+          <div className="flex shrink-0 items-center rounded-xl border border-slate-200 bg-slate-100 p-0.5">
             {supportedLanguages.map((lang) => (
               <button
                 key={lang.code}
@@ -132,7 +127,7 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
 
           {/* Authenticated User Section */}
           {user ? (
-            <div className="flex items-center gap-2 pl-2 border-l border-slate-200 ml-1">
+            <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-2 ml-1">
               <div className="hidden xl:flex items-center gap-1.5 text-xs text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200">
                 <User className="w-3.5 h-3.5 text-emerald-600" />
                 <span className="max-w-[120px] truncate font-medium">{user.email}</span>
@@ -149,8 +144,13 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
               )}
             </div>
           ) : (
-            onSignIn && (
-              <div className="flex items-center pl-2 border-l border-slate-200 ml-1">
+            <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-2 ml-1">
+              {isGuest && (
+                <span className="hidden sm:inline-flex items-center rounded-lg bg-slate-100 px-2 py-1.5 text-[11px] font-semibold text-slate-600 border border-slate-200">
+                  Guest Mode
+                </span>
+              )}
+              {onSignIn && (
                 <button
                   onClick={onSignIn}
                   className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition cursor-pointer"
@@ -158,8 +158,8 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
                   <User className="w-3.5 h-3.5" />
                   <span>{t("auth.signin_btn", "Sign In")}</span>
                 </button>
-              </div>
-            )
+              )}
+            </div>
           )}
         </div>
       </div>
