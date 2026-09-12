@@ -90,6 +90,18 @@ export function AuthProvider({ children }) {
     return result;
   };
 
+  /**
+   * Update password for current authenticated user.
+   * Returns { data, error } from Supabase.
+   */
+  const updatePassword = async (newPassword) => {
+    if (!supabase) {
+      return { data: null, error: { message: "Supabase authentication is not configured." } };
+    }
+    const result = await supabase.auth.updateUser({ password: newPassword });
+    return result;
+  };
+
   const value = {
     user,
     session,
@@ -98,6 +110,7 @@ export function AuthProvider({ children }) {
     signUp,
     signIn,
     signOut,
+    updatePassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

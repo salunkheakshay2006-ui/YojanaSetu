@@ -1,5 +1,5 @@
 import React from "react";
-import { Shield, RefreshCw, Search, CheckCircle2, Bookmark, Clock, LogOut, User, FileText } from "lucide-react";
+import { RefreshCw, Search, CheckCircle2, Bookmark, Clock, LogOut, User, FileText } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
 export default function Navbar({ onReset, hasResults, activeTab = "eligibility", onTabChange, savedCount = 0, docsCount = 0, user = null, isGuest = false, onSignOut = null, onSignIn = null }) {
@@ -9,18 +9,15 @@ export default function Navbar({ onReset, hasResults, activeTab = "eligibility",
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
       <div className="h-1.5 w-full bg-gradient-to-r from-amber-500 via-white to-emerald-600"></div>
       <div className="max-w-6xl mx-auto px-3 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex min-w-0 shrink-0 items-center gap-3 cursor-pointer" onClick={onReset}>
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-700/20">
-            <Shield className="w-5 h-5" />
-          </div>
-          <div>
-            <span className="text-xl font-black tracking-tight text-slate-900">
-              Yojana<span className="text-emerald-600">Setu</span>
-            </span>
-            <p className="text-xs text-slate-500 hidden lg:block">
-              {t("brand.tagline", "Autonomous Government Scheme-Bundle Optimizer for Citizens")}
-            </p>
-          </div>
+        <div className="flex min-w-0 shrink-0 items-center gap-3 cursor-pointer select-none" onClick={onReset}>
+          <img
+            src="/yojanasetu-logo.svg"
+            alt="YojanaSetu"
+            className="h-9 sm:h-10 w-auto object-contain"
+          />
+          <p className="text-xs text-slate-500 hidden xl:block border-l border-slate-200 pl-3">
+            {t("brand.tagline", "Autonomous Government Scheme-Bundle Optimizer for Citizens")}
+          </p>
         </div>
 
         {/* Main Navigation Links */}

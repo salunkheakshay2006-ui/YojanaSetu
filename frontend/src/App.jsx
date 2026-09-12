@@ -1,20 +1,45 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
+import Sidebar from "./components/Sidebar";
 import CitizenForm from "./components/CitizenForm";
 import ResultsDashboard from "./components/ResultsDashboard";
 import SearchSchemesPage from "./components/SearchSchemesPage";
 import SavedSchemesPage from "./components/SavedSchemesPage";
 import ApplicationTrackerPage, { TRACKER_STATUSES } from "./components/ApplicationTrackerPage";
 import MyDocumentsPage from "./components/MyDocumentsPage";
+import NotificationsPage from "./components/NotificationsPage";
+import AccountSettingsPage from "./components/AccountSettingsPage";
 import SchemeDetailModal from "./components/SchemeDetailModal";
 import AuthPage from "./components/AuthPage";
 import { useAuth } from "./contexts/AuthContext";
-import { Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle, Menu, RefreshCw, User as UserIcon } from "lucide-react";
 
 const SAVED_SCHEMES_STORAGE_KEY = "yojanasetu_saved_schemes";
 const APPLICATION_TRACKER_STORAGE_KEY = "yojanasetu_application_tracker";
 const MY_DOCUMENTS_STORAGE_KEY = "yojanasetu_my_documents";
 const GUEST_MODE_STORAGE_KEY = "yojanasetu_guest_mode";
+
+const TAB_TO_PATH = {
+  profile: "/profile",
+  eligibility: "/profile",
+  search: "/search",
+  documents: "/documents",
+  saved: "/saved-schemes",
+  tracker: "/applications",
+  applications: "/applications",
+  notifications: "/notifications",
+  settings: "/settings",
+};
+
+const PATH_TO_TAB = {
+  "/profile": "profile",
+  "/search": "search",
+  "/documents": "documents",
+  "/saved-schemes": "saved",
+  "/applications": "applications",
+  "/notifications": "notifications",
+  "/settings": "settings",
+};
 
 export default function App() {
   const { user, session, loading: authLoading, signOut } = useAuth();
@@ -28,7 +53,15 @@ export default function App() {
     }
   });
 
-  const [activeTab, setActiveTab] = useState("eligibility"); // 'eligibility', 'search', 'saved', or 'tracker'
+  const [activeTab, setActiveTab] = useState(() => {
+    try {
+      const path = window.location.pathname;
+      return PATH_TO_TAB[path] || "profile";
+    } catch {
+      return "profile";
+    }
+  });
+  const [isSidebarOpenMobile, setIsSidebarOpenMobile] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState("");
   const [results, setResults] = useState(null);
@@ -421,14 +454,18 @@ export default function App() {
     };
   }, [session?.access_token]);
 
-  // Citizen Profile state fetched from cloud PostgreSQL for authenticated user
+  // Citizen Profile state fetched from cloud PostgreSQL/SQLite for authenticated user
   const [savedProfile, setSavedProfile] = useState(null);
+  const [profileSaving, setProfileSaving] = useState(false);
 
-  // Fetch saved citizen profile from backend PostgreSQL when session is available
+  // Fetch saved citizen profile from backend when session is available
   useEffect(() => {
     let isMounted = true;
     const fetchProfile = async () => {
-      if (!session?.access_token) return;
+      if (!session?.access_token) {
+        if (isMounted) setSavedProfile(null);
+        return;
+      }
       try {
         const res = await fetch("/api/profile/me", {
           headers: {
@@ -440,6 +477,8 @@ export default function App() {
           if (isMounted && json.data && json.data.name) {
             setSavedProfile(json.data);
           }
+        } else if (res.status === 404) {
+          if (isMounted) setSavedProfile(null);
         }
       } catch (err) {
         console.error("Failed to fetch citizen profile from database:", err);
@@ -451,6 +490,48 @@ export default function App() {
       isMounted = false;
     };
   }, [session?.access_token]);
+
+  // Explicit Save Profile handler (persists citizen profile to backend without requiring immediate eligibility run)
+  const handleSaveProfile = async (formData) => {
+    if (!session?.access_token) {
+      return {
+        success: false,
+        message: "Please sign in or create an account to save your profile to the cloud.",
+      };
+    }
+    setProfileSaving(true);
+    try {
+      const res = await fetch("/api/profile", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        throw new Error("We couldn't save your profile details. Please check that all required fields are filled out and try again.");
+      }
+      const json = await res.json();
+      if (json.data) {
+        setSavedProfile(json.data);
+        return {
+          success: true,
+          message: "Profile saved successfully! Your details will load automatically whenever you sign in.",
+          data: json.data,
+        };
+      }
+      return { success: true, message: "Profile saved successfully." };
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+      return {
+        success: false,
+        message: err.message || "Could not save profile details right now.",
+      };
+    } finally {
+      setProfileSaving(false);
+    }
+  };
 
   const savePreferencesToBackend = async (goals) => {
     if (!session?.access_token) return;
@@ -584,6 +665,233 @@ export default function App() {
     }
   };
 
+  // URL Routing Sync
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        const path = window.location.pathname;
+        if (PATH_TO_TAB[path]) {
+          setActiveTab(PATH_TO_TAB[path]);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setError(null);
+    try {
+      const targetPath = TAB_TO_PATH[tab] || "/profile";
+      if (window.location.pathname !== targetPath) {
+        window.history.pushState(null, "", targetPath);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    setSavedProfile(null);
+    setResults(null);
+    setSavedSchemes([]);
+    setTrackerStatuses({});
+    setAvailableDocs([]);
+    setCustomDocs([]);
+    setActiveTab("profile");
+    setIsGuest(false);
+    setIsSidebarOpenMobile(false);
+    try {
+      window.history.pushState(null, "", "/");
+      localStorage.removeItem(GUEST_MODE_STORAGE_KEY);
+    } catch (e) {
+      console.error("Failed to clear guest mode on sign out", e);
+    }
+  };
+
+  const getTabTitle = (tab) => {
+    switch (tab) {
+      case "profile":
+      case "eligibility":
+        return "Citizen Profile & Eligibility";
+      case "documents":
+        return "My Documents & Readiness";
+      case "saved":
+        return "Saved Schemes";
+      case "applications":
+      case "tracker":
+        return "My Applications Tracker";
+      case "notifications":
+        return "Notifications & System Alerts";
+      case "settings":
+        return "Account & Security Settings";
+      case "search":
+        return "Search All 40 Schemes";
+      default:
+        return "Dashboard";
+    }
+  };
+
+  // Reactive unread notifications calculation
+  const unreadNotificationsCount = (() => {
+    if (!user) return 0;
+    try {
+      const readIds = JSON.parse(localStorage.getItem(`yojanasetu_notifications_${user.id}`) || "[]");
+      let count = 0;
+      if (!readIds.includes("notif-profile-synced") && !readIds.includes("notif-profile-incomplete")) count++;
+      if (!readIds.includes("notif-docs-missing") && !readIds.includes("notif-docs-ready")) count++;
+      if (savedSchemes.length > 0 && !readIds.includes("notif-saved-schemes")) count++;
+      if (savedProfile?.has_active_mudra_loan && !readIds.includes("notif-mudra-conflict")) count++;
+      if (!readIds.includes("notif-official-reminder")) count++;
+      return count;
+    } catch {
+      return 1;
+    }
+  })();
+
+  // Shared Tab Content Renderer across both Authenticated and Guest Layouts
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case "documents":
+        return (
+          <MyDocumentsPage
+            availableDocs={availableDocs}
+            customDocs={customDocs}
+            onToggleDocument={handleToggleDocument}
+            onAddCustomDocument={handleAddCustomDocument}
+            onRemoveCustomDocument={handleRemoveCustomDocument}
+            isCloudSynced={Boolean(session?.access_token)}
+            results={results}
+            onViewSchemeDetails={(scheme) => setActiveModalScheme(scheme)}
+            onGoToResults={() => handleTabChange("profile")}
+            onGoToCheckEligibility={() => handleTabChange("profile")}
+          />
+        );
+
+      case "applications":
+      case "tracker":
+        return (
+          <ApplicationTrackerPage
+            trackedSchemes={savedSchemes}
+            trackerStatuses={trackerStatuses}
+            onUpdateStatus={handleUpdateTrackerStatus}
+            onRemoveScheme={handleToggleSaveScheme}
+            onGoToSearch={() => handleTabChange("search")}
+            onGoToCheckEligibility={() => handleTabChange("profile")}
+          />
+        );
+
+      case "saved":
+        return (
+          <SavedSchemesPage
+            savedSchemes={savedSchemes}
+            onToggleSaveScheme={handleToggleSaveScheme}
+            trackerStatuses={trackerStatuses}
+            onUpdateStatus={handleUpdateTrackerStatus}
+            onGoToTracker={() => handleTabChange("applications")}
+            onGoToSearch={() => handleTabChange("search")}
+            onGoToCheckEligibility={() => handleTabChange("profile")}
+          />
+        );
+
+      case "notifications":
+        return (
+          <NotificationsPage
+            user={user}
+            userProfile={savedProfile}
+            savedSchemes={savedSchemes}
+            trackerStatuses={trackerStatuses}
+            availableDocs={availableDocs}
+            results={results}
+            onNavigate={(tab) => handleTabChange(tab)}
+          />
+        );
+
+      case "settings":
+        return (
+          <AccountSettingsPage
+            user={user}
+            userProfile={savedProfile}
+            onSignOut={handleSignOut}
+          />
+        );
+
+      case "search":
+        return (
+          <SearchSchemesPage
+            onGoToCheckEligibility={() => handleTabChange("profile")}
+            isSchemeSaved={isSchemeSaved}
+            onToggleSaveScheme={handleToggleSaveScheme}
+          />
+        );
+
+      case "profile":
+      case "eligibility":
+      default:
+        return (
+          <>
+            {/* Error Alert */}
+            {error && (
+              <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-start gap-3 shadow-xs">
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                <div>
+                  <h4 className="font-bold text-sm">Unable to complete request</h4>
+                  <p className="text-xs text-red-700 mt-0.5">{error}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Loading State with friendly messages */}
+            {loading && (
+              <div className="py-20 text-center space-y-4 max-w-md mx-auto">
+                <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+                <h3 className="text-lg font-bold text-slate-900">{loadingStep}</h3>
+                <p className="text-xs text-slate-500">
+                  Please wait a moment while we process your details against official schemes.
+                </p>
+              </div>
+            )}
+
+            {/* Form View (when no results) */}
+            {!loading && !results && (
+              <CitizenForm
+                onSubmit={handleFormSubmit}
+                loading={loading}
+                userProfile={savedProfile}
+                selectedGoals={selectedGoals}
+                onToggleGoal={handleToggleGoal}
+                onClearGoals={handleClearGoals}
+                onSetGoals={handleSetGoals}
+                onSaveProfile={handleSaveProfile}
+                isProfileSaving={profileSaving}
+                isAuthenticated={Boolean(user)}
+              />
+            )}
+
+            {/* Results View */}
+            {!loading && results && (
+              <ResultsDashboard
+                result={results}
+                selectedGoals={selectedGoals}
+                onBack={handleReset}
+                isSchemeSaved={isSchemeSaved}
+                onToggleSaveScheme={handleToggleSaveScheme}
+                availableDocs={availableDocs}
+                onGoToDocuments={() => handleTabChange("documents")}
+              />
+            )}
+          </>
+        );
+    }
+  };
+
   // --- Auth Gating ---
 
   // While checking for an existing session, show a loading spinner
@@ -605,159 +913,117 @@ export default function App() {
     return <AuthPage onContinueGuest={handleContinueGuest} />;
   }
 
-  // --- Main Application (Guest or Authenticated) ---
+  // --- Layout 1: Authenticated User with Left Sidebar Navigation ---
+  if (user) {
+    return (
+      <div className="min-h-screen flex bg-slate-50 text-slate-900">
+        {/* Left Sidebar */}
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+          savedCount={savedSchemes.length}
+          docsCount={availableDocs.length}
+          trackerCount={Object.keys(trackerStatuses).length}
+          unreadNotificationsCount={unreadNotificationsCount}
+          user={user}
+          onSignOut={handleSignOut}
+          isOpenMobile={isSidebarOpenMobile}
+          onCloseMobile={() => setIsSidebarOpenMobile(false)}
+        />
 
+        {/* Main Content Area Column */}
+        <div className="flex-1 flex flex-col min-w-0 lg:pl-64 xl:pl-72">
+          {/* Top Header Bar for Authenticated User */}
+          <header className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-slate-200 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpenMobile(true)}
+                className="lg:hidden p-2 -ml-1 rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition cursor-pointer"
+                aria-label="Open navigation sidebar"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
+              <img
+                src="/yojanasetu-symbol.svg"
+                alt="YojanaSetu"
+                className="w-7 h-7 object-contain lg:hidden shrink-0"
+              />
+              <h2 className="text-base sm:text-lg font-bold text-slate-900 tracking-tight">
+                {getTabTitle(activeTab)}
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-3">
+              {results && (activeTab === "profile" || activeTab === "eligibility") && (
+                <button
+                  type="button"
+                  onClick={handleReset}
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 transition cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">New Profile Check</span>
+                </button>
+              )}
+
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-medium text-slate-700">
+                <UserIcon className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <span className="max-w-[120px] sm:max-w-[180px] truncate">{user.email}</span>
+              </div>
+            </div>
+          </header>
+
+          {/* Main Content View */}
+          <main className="flex-1 min-w-0 max-w-6xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-8">
+            {renderTabContent()}
+          </main>
+
+          {/* Footer */}
+          <footer className="border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-500 mt-auto">
+            <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p>
+                <strong>YojanaSetu</strong> — Find the government schemes that fit your needs.
+              </p>
+              <p className="text-[11px] text-slate-400 max-w-xl text-center sm:text-right">
+                Disclaimer: YojanaSetu is an assistance platform. Final eligibility and approval are determined by the concerned government department.
+              </p>
+            </div>
+          </footer>
+        </div>
+
+        {/* Global Scheme Detail Modal */}
+        {activeModalScheme && (
+          <SchemeDetailModal
+            scheme={activeModalScheme}
+            onClose={() => setActiveModalScheme(null)}
+            isSaved={isSchemeSaved(activeModalScheme)}
+            onToggleSave={handleToggleSaveScheme}
+          />
+        )}
+      </div>
+    );
+  }
+
+  // --- Layout 2: Guest User with Standard Top Navbar ---
   return (
     <div className="min-h-screen w-full max-w-full overflow-x-hidden flex flex-col bg-slate-50 text-slate-900">
-      {/* Navbar */}
+      {/* Top Navbar */}
       <Navbar
         onReset={handleReset}
         hasResults={Boolean(results)}
         activeTab={activeTab}
         savedCount={savedSchemes.length}
         docsCount={availableDocs.length}
-        onTabChange={(tab) => {
-          setActiveTab(tab);
-          setError(null);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-        user={user}
-        isGuest={isGuest && !user}
-        onSignOut={signOut}
+        onTabChange={handleTabChange}
+        user={null}
+        isGuest={true}
+        onSignOut={handleSignOut}
         onSignIn={handlePromptSignIn}
       />
 
       {/* Main Content Area */}
       <main className="flex-1 min-w-0 max-w-6xl w-full mx-auto px-3 sm:px-6 py-5 sm:py-8">
-        {/* My Documents Tab */}
-        {activeTab === "documents" && (
-          <MyDocumentsPage
-            availableDocs={availableDocs}
-            customDocs={customDocs}
-            onToggleDocument={handleToggleDocument}
-            onAddCustomDocument={handleAddCustomDocument}
-            onRemoveCustomDocument={handleRemoveCustomDocument}
-            isCloudSynced={Boolean(session?.access_token)}
-            results={results}
-            onViewSchemeDetails={(scheme) => setActiveModalScheme(scheme)}
-            onGoToResults={() => {
-              setActiveTab("eligibility");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            onGoToCheckEligibility={() => {
-              setActiveTab("eligibility");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        )}
-
-        {/* Application Tracker Tab */}
-        {activeTab === "tracker" && (
-          <ApplicationTrackerPage
-            trackedSchemes={savedSchemes}
-            trackerStatuses={trackerStatuses}
-            onUpdateStatus={handleUpdateTrackerStatus}
-            onRemoveScheme={handleToggleSaveScheme}
-            onGoToSearch={() => {
-              setActiveTab("search");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            onGoToCheckEligibility={() => {
-              setActiveTab("eligibility");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        )}
-
-        {/* Saved Schemes Tab */}
-        {activeTab === "saved" && (
-          <SavedSchemesPage
-            savedSchemes={savedSchemes}
-            onToggleSaveScheme={handleToggleSaveScheme}
-            trackerStatuses={trackerStatuses}
-            onUpdateStatus={handleUpdateTrackerStatus}
-            onGoToTracker={() => {
-              setActiveTab("tracker");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            onGoToSearch={() => {
-              setActiveTab("search");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            onGoToCheckEligibility={() => {
-              setActiveTab("eligibility");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-          />
-        )}
-
-        {/* Search All Schemes Tab */}
-        {activeTab === "search" && (
-          <SearchSchemesPage
-            onGoToCheckEligibility={() => {
-              setActiveTab("eligibility");
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            isSchemeSaved={isSchemeSaved}
-            onToggleSaveScheme={handleToggleSaveScheme}
-          />
-        )}
-
-        {/* Eligibility Tab */}
-        {activeTab === "eligibility" && (
-          <>
-            {/* Error Alert */}
-            {error && (
-              <div className="mb-6 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-900 flex items-start gap-3 shadow-xs">
-                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                <div>
-                  <h4 className="font-bold text-sm">Unable to complete request</h4>
-                  <p className="text-xs text-red-700 mt-0.5">{error}</p>
-                </div>
-              </div>
-            )}
-
-            {/* Loading State with friendly messages */}
-            {loading && (
-              <div className="py-20 text-center space-y-4 max-w-md mx-auto">
-                <div className="w-16 h-16 rounded-3xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600 shadow-sm">
-                  <Loader2 className="w-8 h-8 animate-spin" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900">{loadingStep}</h3>
-                <p className="text-xs text-slate-500">Please wait a moment while we process your details against official schemes.</p>
-              </div>
-            )}
-
-            {/* Form View (when no results) */}
-            {!loading && !results && (
-              <CitizenForm
-                onSubmit={handleFormSubmit}
-                loading={loading}
-                userProfile={savedProfile}
-                selectedGoals={selectedGoals}
-                onToggleGoal={handleToggleGoal}
-                onClearGoals={handleClearGoals}
-                onSetGoals={handleSetGoals}
-              />
-            )}
-
-            {/* Results View */}
-            {!loading && results && (
-              <ResultsDashboard
-                result={results}
-                selectedGoals={selectedGoals}
-                onBack={handleReset}
-                isSchemeSaved={isSchemeSaved}
-                onToggleSaveScheme={handleToggleSaveScheme}
-                availableDocs={availableDocs}
-                onGoToDocuments={() => {
-                  setActiveTab("documents");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-              />
-            )}
-          </>
-        )}
+        {renderTabContent()}
       </main>
 
       {/* Footer with required disclaimer */}
@@ -771,6 +1037,7 @@ export default function App() {
           </p>
         </div>
       </footer>
+
       {/* Scheme Detail Modal (accessible globally across tabs) */}
       {activeModalScheme && (
         <SchemeDetailModal

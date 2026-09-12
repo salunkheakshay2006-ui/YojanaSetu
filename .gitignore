@@ -46,3 +46,7 @@ uploads/
 temp/
 logs/
 scratch/
+*.db
+*.db.*
+*.sqlite
+*.sqlite3

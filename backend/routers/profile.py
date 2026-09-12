@@ -42,7 +42,7 @@ def createCitizenProfile(
             updated_profile = store.update_citizen_for_user(
                 user_id=verified_user_id,
                 profile_id=existing.id,
-                updated_data=body.model_dump(),
+                updated_data=body.model_dump(mode="json"),
             )
             return {
                 "success": True,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Sparkles, User, MapPin, Briefcase, Loader2, ArrowRight, ShieldCheck } from "lucide-react";
+import { Sparkles, User, MapPin, Briefcase, Loader2, ArrowRight, ShieldCheck, Save, CheckCircle2, AlertCircle } from "lucide-react";
 import { DEMO_PROFILES, EMPTY_FORM } from "../data/demoProfiles";
 import GoalSelector from "./GoalSelector";
 import { useLanguage } from "../contexts/LanguageContext";
@@ -12,10 +12,41 @@ export default function CitizenForm({
   onToggleGoal,
   onClearGoals,
   onSetGoals,
+  onSaveProfile = null,
+  isProfileSaving = false,
+  isAuthenticated = false,
 }) {
   const { t } = useLanguage();
-  const [formData, setFormData] = useState(DEMO_PROFILES[0].data);
-  const [activePreset, setActivePreset] = useState("ravi");
+  const [formData, setFormData] = useState(() => {
+    if (userProfile && userProfile.name) {
+      return {
+        name: userProfile.name || "",
+        age: userProfile.age ?? "",
+        gender: userProfile.gender || "male",
+        state: userProfile.state || "Maharashtra",
+        district: userProfile.district || "",
+        income: userProfile.income ?? "",
+        occupation: userProfile.occupation || "Farmer",
+        education: userProfile.education || "10th Pass",
+        category: userProfile.category || "General",
+        is_student: Boolean(userProfile.is_student),
+        is_farmer: Boolean(userProfile.is_farmer),
+        is_disabled: Boolean(userProfile.is_disabled),
+        has_bank_account: Boolean(userProfile.has_bank_account),
+        is_bpl: Boolean(userProfile.is_bpl),
+        ration_card_type: userProfile.ration_card_type || "none",
+        owns_land: Boolean(userProfile.owns_land),
+        is_pregnant_or_lactating: Boolean(userProfile.is_pregnant_or_lactating),
+        owns_business: Boolean(userProfile.owns_business),
+        has_active_mudra_loan: Boolean(userProfile.has_active_mudra_loan),
+      };
+    }
+    return DEMO_PROFILES[0].data;
+  });
+  const [activePreset, setActivePreset] = useState(() => {
+    return userProfile && userProfile.name ? "cloud" : "ravi";
+  });
+  const [saveStatusMessage, setSaveStatusMessage] = useState(null);
 
   // Restore authenticated user's cloud profile when available
   useEffect(() => {
@@ -69,6 +100,27 @@ export default function CitizenForm({
       age: parseInt(formData.age, 10) || 0,
       income: parseFloat(formData.income) || 0,
     });
+  };
+
+  const handleManualSave = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!onSaveProfile) return;
+    setSaveStatusMessage(null);
+    const sanitized = {
+      ...formData,
+      age: parseInt(formData.age, 10) || 0,
+      income: parseFloat(formData.income) || 0,
+    };
+    const res = await onSaveProfile(sanitized);
+    if (res?.message) {
+      setSaveStatusMessage({
+        type: res.success ? "success" : "error",
+        text: res.message,
+      });
+      if (res.success) {
+        setActivePreset("cloud");
+      }
+    }
   };
 
   return (
@@ -166,6 +218,22 @@ export default function CitizenForm({
             </div>
           )}
         </div>
+
+        {/* Save feedback banner */}
+        {saveStatusMessage && (
+          <div className={`p-4 rounded-2xl flex items-center gap-3 text-xs font-semibold ${
+            saveStatusMessage.type === "success"
+              ? "bg-emerald-50 border border-emerald-200 text-emerald-900 shadow-xs"
+              : "bg-red-50 border border-red-200 text-red-900 shadow-xs"
+          }`}>
+            {saveStatusMessage.type === "success" ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+            )}
+            <span>{saveStatusMessage.text}</span>
+          </div>
+        )}
 
         {/* Section 1: Basic Information */}
         <div>
@@ -487,29 +555,53 @@ export default function CitizenForm({
           </div>
         </div>
 
-        {/* Submit Button */}
+        {/* Submit / Action Buttons */}
         <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-slate-500 text-center sm:text-left">
-            🔒 {t("hero.disclaimer", "Your details are checked against 20 official government schemes.")}
+            🔒 {t("hero.disclaimer", "Your details are checked against 40 official government schemes.")}
           </p>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-sm shadow-lg shadow-emerald-700/20 hover:shadow-emerald-700/30 transition disabled:opacity-50 cursor-pointer"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                {t("form.submitting", "Checking Available Schemes...")}
-              </>
-            ) : (
-              <>
-                {t("form.submit_button", "Check Scheme Eligibility")}
-                <ArrowRight className="w-4 h-4" />
-              </>
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            {onSaveProfile && (
+              <button
+                type="button"
+                onClick={handleManualSave}
+                disabled={isProfileSaving || loading}
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs shadow-xs transition disabled:opacity-50 cursor-pointer"
+                title="Save your profile details to cloud so they load automatically next time you sign in"
+              >
+                {isProfileSaving ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-700" />
+                    <span>{t("form.saving_profile", "Saving Profile...")}</span>
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-3.5 h-3.5 text-emerald-700" />
+                    <span>{t("form.save_profile", "Save Profile")}</span>
+                  </>
+                )}
+              </button>
             )}
-          </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-sm shadow-lg shadow-emerald-700/20 hover:shadow-emerald-700/30 transition disabled:opacity-50 cursor-pointer"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t("form.submitting", "Checking Available Schemes...")}
+                </>
+              ) : (
+                <>
+                  {t("form.submit_button", "Check Scheme Eligibility")}
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>

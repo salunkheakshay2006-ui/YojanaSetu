@@ -6,7 +6,7 @@
  */
 
 import React, { useState } from "react";
-import { Shield, Sparkles, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ArrowRight, UserCheck } from "lucide-react";
+import { Sparkles, Mail, Lock, Eye, EyeOff, Loader2, CheckCircle2, AlertCircle, ArrowRight, UserCheck } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -177,17 +177,14 @@ export default function AuthPage({ onContinueGuest = null }) {
         <div className="w-full max-w-md space-y-8">
           {/* Brand Header */}
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-lg shadow-emerald-700/20 mx-auto">
-              <Shield className="w-8 h-8" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">
-                Yojana<span className="text-emerald-600">Setu</span>
-              </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Find the government schemes that fit your needs
-              </p>
-            </div>
+            <img
+              src="/yojanasetu-logo.svg"
+              alt="YojanaSetu"
+              className="h-16 w-auto object-contain mx-auto"
+            />
+            <p className="text-sm text-slate-500 mt-1">
+              Find the government schemes that fit your needs
+            </p>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
               Autonomous Scheme-Bundle Optimizer
